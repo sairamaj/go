@@ -7,6 +7,7 @@
 
     * go mod init example.com/user/hello
     * go install example.com/user/hello
+    * go run hello.go  (can be used to run immediately)
     * go env
 
 
