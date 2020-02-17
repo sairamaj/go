@@ -21,20 +21,29 @@ func (t Tower) Draw() {
 		fmt.Println("\t        |")
 	}
 
-	for _, d := range t.discs {
-		d.Draw()
+	for i :=len(t.discs)-1 ; i >=0 ; i-- {
+		t.discs[i].Draw()
 	}
 }
 
-func (t *Tower) AddDisc(disc Disc) {
+func (t *Tower) addDisc(disc Disc) {
 	if t.discs == nil {
 		t.discs = []Disc{}
+	}else{
+		topDisc := t.discs[len(t.discs)-1]
+		if topDisc.Size < disc.Size {
+			panic ("Disc cannot be added")
+		}
 	}
 
 	t.discs = append(t.discs, disc)
 }
 
-func(t *Tower) RemoveDisc() Disc{
+func(t *Tower) removeDisc() Disc{
+	if len(t.discs) == 0 {
+		panic("Tower does not have discs.")
+	}
+
 	topDisc := t.discs[len(t.discs)-1]
 	t.discs = t.discs[0:len(t.discs)-1]
 	return topDisc
@@ -51,9 +60,9 @@ func (d Disc) Draw() {
 func CreateGamer() *Gamer {
 
 	towers := []Tower{Tower{},Tower{},Tower{}}
-	towers[0].AddDisc(Disc{Size:12})
-	towers[0].AddDisc(Disc{Size:18})
-	towers[0].AddDisc(Disc{Size:24})
+	towers[0].addDisc(Disc{Size:24})
+	towers[0].addDisc(Disc{Size:18})
+	towers[0].addDisc(Disc{Size:12})
 
 	g := Gamer{towers:towers}
 	return &g
@@ -65,8 +74,24 @@ func (g *Gamer) Draw(){
 	}
 }
 
-func(g *Gamer) Move(from int , to int){
-	disc := g.towers[from-1].RemoveDisc()
-	g.towers[to-1].AddDisc(disc)
+func(g *Gamer) Move(from int , to int) (err error){
+	defer func(){
+		if r := recover(); r!= nil {
+			err = fmt.Errorf("Error (cannot remove) %s (Tower:%d)",  r, from)
+		}
+	}()
+
+	disc := g.towers[from-1].removeDisc()
+
+	defer func(){
+		if r := recover(); r!= nil {
+			err = fmt.Errorf("Error(cannot add) %s (Tower:%d)",  r, from)
+			g.towers[from-1].addDisc(disc)	// put it back.
+		}
+	}()
+
+	g.towers[to-1].addDisc(disc)
 	g.Draw()
+
+	return err
 }

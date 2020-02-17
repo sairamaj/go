@@ -23,6 +23,11 @@ func main() {
 		_, err := fmt.Fscanln(os.Stdin, &from, &to)
 		ok(err)
 		fmt.Println("from:", from, "to:", to)
-		g.Move(from, to)
+		err = g.Move(from, to)
+		if err != nil{
+			fmt.Println("Error", err)
+			g.Draw()
+		}
+		
 	}
 }
