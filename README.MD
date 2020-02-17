@@ -7,9 +7,7 @@
 
     * go mod init example.com/user/hello
     * go install example.com/user/hello
-    * go env
+    * go env 
 
-
-
-
+[Must Read](https://golang.org/doc/effective_go.html)
 
