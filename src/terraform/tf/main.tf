@@ -5,11 +5,11 @@ terraform {
 }
 
 provider "sample" {
-  path = "c:\\temp"
+  path = "c:\\temp\\"
 }
 
 resource sample_item test_file {
     name = "this_is_an_item"
     filename = "test.txt"
-    content = "somecontent"
+    content = "new content_111"
 }

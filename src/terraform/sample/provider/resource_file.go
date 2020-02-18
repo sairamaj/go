@@ -2,6 +2,8 @@ package provider
 
 import (
 	"log"
+	"os"
+
 	"github.com/hashicorp/terraform/helper/schema"
 	_ "github.com/hashicorp/terraform/terraform"
 )
@@ -40,22 +42,32 @@ func resourceFile() *schema.Resource {
 
 func resourceCreateItem(d *schema.ResourceData, m interface{}) error {
 	log.Println("[TF-SAMPLE] resourceCreateItem...")
-
+	providerData := m.(*ProviderData)
 	name := d.Get("name").(string)
 	filename := d.Get("filename").(string)
 	content := d.Get("content").(string)
 
-	log.Println("[TF-SAMPLE] resourceCreateItem ", filename, content)
+	filePath := providerData.Path + filename
+	log.Println("[TF-SAMPLE] resourceCreateItem ", filename, content, "fullpath:", filePath)
+
+	f, err := os.Create(filePath)
+	if err != nil {
+		panic(err)
+	}
+	defer f.Close()
+	f.WriteString(content)
 	d.SetId(name)
+	log.Println("[TF-SAMPLE] resourceCreateItem returning...")
 	return nil
 }
 
 func resourceReadItem(d *schema.ResourceData, m interface{}) error {
 	log.Println("[TF-SAMPLE] resourceReadItem...")
 	d.SetId("test")
-	d.Set("name", "test")
-	d.Set("filename", "filename")
-	d.Set("cotent", "content")
+	// d.Set("name", "test")
+	// d.Set("filename", "filename")
+	// d.Set("cotent", "content")
+	log.Println("[TF-SAMPLE] resourceReadItem returning")
 	return nil
 }
 
@@ -66,11 +78,35 @@ func resourceUpdateItem(d *schema.ResourceData, m interface{}) error {
 
 func resourceDeleteItem(d *schema.ResourceData, m interface{}) error {
 	log.Println("[TF-SAMPLE] resourceDeleteItem...")
+	providerData := m.(*ProviderData)
+	filename := d.Get("filename").(string)
+
+	filePath := providerData.Path + filename
+	log.Println("[TF-SAMPLE] resourceDeleteItem ", filename, "fullpath:", filePath)
+	if _, err := os.Stat(filePath); err == nil {
+		log.Println("[TF-SAMPLE] resourceDeleteItem ", filePath, "exists and hence removing.")
+		os.Remove(filePath)
+	}else{
+		log.Println("[TF-SAMPLE] resourceDeleteItem err:", err)
+	}
 	d.SetId("")
+	log.Println("[TF-SAMPLE] resourceDeleteItem returning...")
 	return nil
 }
 
 func resourceExistsItem(d *schema.ResourceData, m interface{}) (bool, error) {
 	log.Println("[TF-SAMPLE] resourceExistsItem...")
+	providerData := m.(*ProviderData)
+	filename := d.Get("filename").(string)
+	filePath := providerData.Path + filename
+	log.Println("[TF-SAMPLE] resourceDeleteItem ", filename, "fullpath:", filePath)
+	if _, err := os.Stat(filePath); err == nil {
+		log.Println("[TF-SAMPLE] resourceExistsItem returning true")
+		return true, nil
+	}else{
+		log.Println("[TF-SAMPLE] resourceExistsItem err:", err)
+	}
+
+	log.Println("[TF-SAMPLE] resourceExistsItem returning false.")
 	return false, nil
 }
