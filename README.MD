@@ -38,3 +38,8 @@
 * x.(T)
     * asserts that x is not nil and that the value stored in x is of type T
     * x.(T) is called a type assertion
+
+Package locations
+    - GOROOT
+    - GOPATH
+    
